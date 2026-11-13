@@ -8,7 +8,7 @@ require __DIR__ . '/conexion.php';
 
     //Patrón para usar en expresiones regulares (letras acentuadas y espacios)
     $patron_texto = "/^[a-zA-ZáéíóúÁÉÍÓÚüÜàèìòùÀÈÌÒÙ\s]+$/";
-    $mess = $_POST['message'];
+    
 
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(!empty($_POST)) {
@@ -76,8 +76,16 @@ require __DIR__ . '/conexion.php';
 
             for($contador=0; $contador < count($duendeMensajero); $contador++)
                 echo $duendeMensajero[$contador]."<br/>";
-            echo "Mensaje:  ", $mess;
+            
 
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            $nomeComp = trim($data['nome']) . trim($data['apelidos']);
+            $usuario = (trim($data['user']);
+            $correo = trim($data['email']);
+            $contrasinal = $data['psswd'];
+            $fecha = date('YYYY-mm-dd H:i:s');
+             
             try {
                 $uri = getenv("MONGODB_URI");
 
@@ -90,11 +98,11 @@ require __DIR__ . '/conexion.php';
                 $manager = new MongoDB\Driver\Manager($uri);
 
                 $data = [
-                    "nome" => $_POST['userName'],
-                    "apelidos" => $_POST['surName'],
-                    "email" => $_POST['email'],
-                    "tel" => $_POST['phone'],
-                    "mensaxe" => $mess
+                    "nome" => $nomeComp,
+                    "usuario" => $usuario,
+                    "email" => $correo,
+                    "rol" => "Cliente",
+                    "fecha" => $fecha
                 ];
 
                 $bulk = new MongoDB\Driver\BulkWrite();

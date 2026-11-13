@@ -8,6 +8,7 @@ $usuario = (trim($data['usuario']);
 $correo = trim($data['correo']);
 $rol = trim($data['rol']);
 $fecha = date('YYYY-mm-dd H:i:s');
+
 //validación del usuario
 if($nome === '' || ){
     http_response_code(400);

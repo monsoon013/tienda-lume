@@ -8,5 +8,5 @@ RUN apt-get update \
     && apt-get purge -y --auto-remove $PHPIZE_DEPS \
     && rm -rf /var/lib/apt/lists/*
 
-COPY /app /var/www/html
-EXPOSE 80
+COPY ./app/ /var/www/html
+EXPOSE 81

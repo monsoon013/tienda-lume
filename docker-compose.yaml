@@ -8,7 +8,7 @@ services:
     container_name: lume-php
     restart: always
     ports:
-      - 3000:80 #puerto interno de apache 80
+      - 3000:81 #puerto interno de apache 80
     volumes: 
       - ./:/var/www/html #empareja la carpeta interna html con nuestra carpeta del proyecto
     env_file:
