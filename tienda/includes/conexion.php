@@ -8,6 +8,7 @@ if(!$uri){
 
 $manager = new MongoDB\Driver\Manager($uri);
 $usuarios = "lume_db.users";
-$produtos = "lume_db.products"
+$produtos = "lume_db.productos";
+$compras = "lume_db.compras";
 
 ?>

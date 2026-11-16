@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/conexion.php';
 
 spl_autoload_register(function (string $clase){
     $prefijo = 'Firebase\\JWT\\';
@@ -51,12 +52,19 @@ function create_session(string $id, string $username, string $rol) :void{
 }
 
 function actual_user(): ?object {
+    global $manager, $usuarios;
     $token = $_COOKIE['token'] ?? null;
     if(!$token){
         return null;
     }
     try{
-        return JWT::decode($token, new Key(jwt_secret(), 'HS256'));
+        $payload = JWT::decode($token, new Key(jwt_secret(), 'HS256'));
+        $id = new MongoDB\BSON\ObjectId((string) ($payload->sub ?? ''));
+        $query = new MongoDB\Driver\Query(['_id' => $id], ['limit' => 1]);
+        $res = $manager->executeQuery($usuarios, $query)->toArray();
+
+        return $res[0] ?? null;
+    
     }catch(Throwable $e){
         error_log('usuario_actual: ' . get_class($e) . ' - ' . $e->getMessage());
         return null; //quiere decir que el token ha sido manipulado, caducado, ..
@@ -69,7 +77,7 @@ function close_sesion():void{
 
 function ob_rol(string $rol): object {
     $u = actual_user();
-    if($u){
+    if(!$u){
         http_response_code(401);
         echo json_encode(['erros' => ['Tienes que iniciar sesión']]);
         exit;
@@ -83,4 +91,26 @@ function ob_rol(string $rol): object {
     return $u;
 }
 
+function fail(int $codigo, string $mensaje): never { //la función nunca devuelve el control, siempre termina con exit.
+    http_response_code($codigo);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['erros' => [$mensaje]]);
+    exit;
+}
+
+function requireAuth():object{ //devuelve la función
+    $u = actual_user();
+    if($u === null){
+        fail(401, 'No autenticado');
+    }
+    return $u;
+}
+
+function requireAdmin():object {
+    $usuario = requireAuth();
+    if(($usuario->rol ?? null) !== 'admin'){
+        fail(403, 'No tienes permisos');
+    }
+    return $usuario;
+}
 ?>
